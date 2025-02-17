@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: white;
+            height: 100vh;
+        }
+
+        .main-content {
+            padding: 20px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .player-controls {
+            position: fixed;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            background: #181818;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #282828;
+        }
+
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .upload-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #282828;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+        }
+
+        .upload-form input, .upload-form button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 8px;
+        }
+
+        .library {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .song-card {
+            position: relative;
+            background: #181818;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .song-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .play-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #1db954; /* Green background */
+            color: #000; /* Black icon color */
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .song-card:hover .play-button {
+            opacity: 1;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: #404040;
+            border-radius: 2px;
+            margin: 0 20px;
+        }
+
+        .progress {
+            height: 100%;
+            background: #1db954;
+            width: 0%;
+        }
+
+        .song-details {
+            display: flex;
+            align-items: center;
+        }
+
+        .song-details img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .song-details div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .song-details div span {
+            font-size: 14px;
+        }
+
+        .footer-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-controls button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .footer-controls .upload-button {
+            background: #1db954;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        .footer-controls .play-button {
+            background: #1db954; /* Green background */
+            color: #000; /* Black icon color */
+        }
+
+        .options-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .options-menu {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            background: #282828;
+            border-radius: 4px;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .options-menu button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+
+        .options-menu button:hover {
+            background: #404040;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .song-count {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #b3b3b3;
+        }
+
+        .hamburger-menu {
+            background: none;
+            border: none;
+            color: #1db954; /* Green color */
+            font-size: 24px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .play-all-button {
+            background: #1db954; /* Green background */
+            color: #000; /* Black icon color */
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .sort-options {
+            display: none;
+            position: absolute;
+            background: #282828;
+            border-radius: 4px;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .sort-options button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+
+        .sort-options button:hover {
+            background: #404040;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .play-all-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .add-song-button {
+            background: #1db954; /* Green background */
+            color: #000; /* Black icon color */
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="search-container">
+            <input type="text" class="search-bar" id="searchBar" placeholder="What do you want to listen to?" oninput="filterSongs()">
+            <button class="hamburger-menu" onclick="toggleSortOptions()"><i class="fas fa-bars"></i></button>
+            <button class="play-all-button" onclick="playAllSongs()"><i class="fas fa-play"></i></button>
+        </div>
+        <div class="sort-options" id="sortOptions">
+            <button onclick="sortLibrary('name-asc')">Name (A to Z)</button>
+            <button onclick="sortLibrary('name-desc')">Name (Z to A)</button>
+            <button onclick="sortLibrary('date-new')">Date Added (New to Old)</button>
+            <button onclick="sortLibrary('date-old')">Date Added (Old to New)</button>
+        </div>
+        <div class="song-count" id="songCount"></div>
+        <div class="library" id="library"></div>
+        <button class="add-song-button" onclick="showUploadForm()"><i class="fas fa-plus"></i></button>
+    </div>
+
+    <div class="player-controls">
+        <div class="controls">
+            <button onclick="togglePlay()"><i class="fas fa-play"></i></button>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+    </div>
+
+    <div class="footer-nav">
+        <div class="song-details" id="footerSongDetails">
+            <img src="" alt="Cover" id="footerCover">
+            <div>
+                <span id="footerSongTitle">No song selected</span>
+                <span id="footerSongArtist"></span>
+            </div>
+        </div>
+        <div class="footer-controls">
+            <button onclick="prevSong()"><i class="fas fa-step-backward"></i></button>
+            <button class="play-button" onclick="togglePlay()"><i class="fas fa-play" id="footerPlayButton"></i></button>
+            <button onclick="nextSong()"><i class="fas fa-step-forward"></i></button>
+        </div>
+    </div>
+
+    <div class="upload-form" id="uploadForm">
+        <img src="path/to/logo.png" alt="Logo" style="width: 100px; margin-bottom: 20px;">
+        <input type="text" id="songTitle" placeholder="Song Title">
+        <input type="text" id="songArtist" placeholder="Song Artist">
+        <input type="file" id="songFile" accept=".mp3,.m4a">
+        <input type="file" id="coverImage" accept=".jpg,.jpeg">
+        <button onclick="uploadSong()">Upload</button>
+        <button onclick="hideUploadForm()">Cancel</button>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        let currentAudio = document.getElementById('audioPlayer');
+        let isPlaying = false;
+        let currentSongIndex = 0;
+
+        // Load library on startup
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLibrary();
+        });
+
+        function showUploadForm() {
+            document.getElementById('uploadForm').style.display = 'block';
+        }
+
+        function hideUploadForm() {
+            document.getElementById('uploadForm').style.display = 'none';
+        }
+
+        function showLibrary() {
+            // Implement library display logic
+        }
+
+        function uploadSong() {
+            const songTitle = document.getElementById('songTitle').value;
+            const songArtist = document.getElementById('songArtist').value;
+            const songFile = document.getElementById('songFile').files[0];
+            const coverImage = document.getElementById('coverImage').files[0];
+
+            if (songTitle && songArtist && songFile && coverImage) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const song = {
+                        id: Date.now(),
+                        title: songTitle,
+                        artist: songArtist,
+                        audioUrl: URL.createObjectURL(songFile),
+                        coverUrl: URL.createObjectURL(coverImage)
+                    };
+
+                    let library = JSON.parse(localStorage.getItem('library') || '[]');
+                    library.push(song);
+                    localStorage.setItem('library', JSON.stringify(library));
+
+                    hideUploadForm();
+                    loadLibrary();
+                };
+                reader.readAsDataURL(coverImage);
+            }
+        }
+
+        function loadLibrary() {
+            const library = JSON.parse(localStorage.getItem('library') || '[]');
+            const libraryDiv = document.getElementById('library');
+            const songCountDiv = document.getElementById('songCount');
+            libraryDiv.innerHTML = '';
+            songCountDiv.textContent = `${library.length} songs`;
+
+            library.forEach((song, index) => {
+                const songCard = document.createElement('div');
+                songCard.className = 'song-card';
+                songCard.dataset.title = song.title.toLowerCase();
+                songCard.dataset.artist = song.artist.toLowerCase();
+                songCard.innerHTML = `
+                    <img src="${song.coverUrl}" alt="${song.title}">
+                    <h4>${song.title}</h4>
+                    <p>${song.artist}</p>
+                    <button class="play-button" onclick="playSong(${index})"><i class="fas fa-play"></i></button>
+                    <button class="options-button" onclick="toggleOptionsMenu(${index})"><i class="fas fa-ellipsis-h"></i></button>
+                    <div class="options-menu" id="optionsMenu${index}">
+                        <button onclick="deleteSong(${index})">Delete</button>
+                    </div>
+                `;
+                songCard.addEventListener('click', () => playSong(index));
+                libraryDiv.appendChild(songCard);
+            });
+        }
+
+        function filterSongs() {
+            const searchTerm = document.getElementById('searchBar').value.toLowerCase();
+            const songCards = document.querySelectorAll('.song-card');
+
+            songCards.forEach(card => {
+                const title = card.dataset.title;
+                const artist = card.dataset.artist;
+                if (title.includes(searchTerm) || artist.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleOptionsMenu(index) {
+            const menu = document.getElementById(`optionsMenu${index}`);
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function deleteSong(index) {
+            let library = JSON.parse(localStorage.getItem('library') || '[]');
+            library.splice(index, 1);
+            localStorage.setItem('library', JSON.stringify(library));
+            loadLibrary();
+        }
+
+        function playSong(index) {
+            const library = JSON.parse(localStorage.getItem('library') || '[]');
+            const song = library[index];
+            if (song) {
+                currentSongIndex = index;
+                document.getElementById('footerSongTitle').textContent = song.title;
+                document.getElementById('footerSongArtist').textContent = song.artist;
+                document.getElementById('footerCover').src = song.coverUrl;
+                currentAudio.src = song.audioUrl;
+                currentAudio.play().then(() => {
+                    document.getElementById('footerPlayButton').classList.replace('fa-play', 'fa-pause');
+                    isPlaying = true;
+                }).catch(error => {
+                    console.error('Error playing audio:', error);
+                });
+            } else {
+                console.error('Song not found in library');
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                currentAudio.pause();
+                document.getElementById('footerPlayButton').classList.replace('fa-pause', 'fa-play');
+            } else {
+                currentAudio.play();
+                document.getElementById('footerPlayButton').classList.replace('fa-play', 'fa-pause');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function prevSong() {
+            const library = JSON.parse(localStorage.getItem('library') || '[]');
+            if (currentSongIndex > 0) {
+                playSong(currentSongIndex - 1);
+            }
+        }
+
+        function nextSong() {
+            const library = JSON.parse(localStorage.getItem('library') || '[]');
+            if (currentSongIndex < library.length - 1) {
+                playSong(currentSongIndex + 1);
+            }
+        }
+
+        // Update progress bar
+        currentAudio.addEventListener('timeupdate', () => {
+            const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        });
+
+        function toggleSortOptions() {
+            const sortOptions = document.getElementById('sortOptions');
+            sortOptions.style.display = sortOptions.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function sortLibrary(criteria) {
+            const library = JSON.parse(localStorage.getItem('library') || '[]');
+
+            switch (criteria) {
+                case 'name-asc':
+                    library.sort((a, b) => a.title.localeCompare(b.title));
+                    break;
+                case 'name-desc':
+                    library.sort((a, b) => b.title.localeCompare(a.title));
+                    break;
+                case 'date-new':
+                    library.sort((a, b) => b.id - a.id);
+                    break;
+                case 'date-old':
+                    library.sort((a, b) => a.id - b.id);
+                    break;
+            }
+
+            localStorage.setItem('library', JSON.stringify(library));
+            loadLibrary();
+            toggleSortOptions();
+        }
+
+        function playAllSongs() {
+            const library = JSON.parse(localStorage.getItem('library') || '[]');
+            if (library.length > 0) {
+                playSong(0);
+            }
+        }
+    </script>
+</body>
+</html>
