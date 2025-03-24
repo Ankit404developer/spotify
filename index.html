@@ -1,560 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZeroByte Mods</title>
+    <meta name="description" content="The best Android Mods & Games" />
+    <meta name="author" content="ZeroByte Mods" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="/src/App.css">
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  </head>
 
-        body {
-            background-color: #121212;
-            color: white;
-            height: 100vh;
-        }
-
-        .main-content {
-            padding: 20px;
-            height: calc(100vh - 160px);
-            overflow-y: auto;
-        }
-
-        .player-controls {
-            position: fixed;
-            bottom: 80px;
-            left: 0;
-            right: 0;
-            background: #181818;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-top: 1px solid #282828;
-        }
-
-        .footer-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #000;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .nav-button {
-            background: none;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        .upload-form {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #282828;
-            padding: 20px;
-            border-radius: 8px;
-            width: 400px;
-        }
-
-        .upload-form input, .upload-form button {
-            width: 100%;
-            margin: 10px 0;
-            padding: 8px;
-        }
-
-        .library {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .song-card {
-            position: relative;
-            background: #181818;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            overflow: hidden;
-        }
-
-        .song-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-
-        .play-button {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: #1db954; /* Green background */
-            color: #000; /* Black icon color */
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .song-card:hover .play-button {
-            opacity: 1;
-        }
-
-        .progress-bar {
-            width: 300px;
-            height: 4px;
-            background: #404040;
-            border-radius: 2px;
-            margin: 0 20px;
-        }
-
-        .progress {
-            height: 100%;
-            background: #1db954;
-            width: 0%;
-        }
-
-        .song-details {
-            display: flex;
-            align-items: center;
-        }
-
-        .song-details img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-
-        .song-details div {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .song-details div span {
-            font-size: 14px;
-        }
-
-        .footer-controls {
-            display: flex;
-            align-items: center;
-        }
-
-        .footer-controls button {
-            background: none;
-            border: none;
-            color: white;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        .footer-controls .upload-button {
-            background: #1db954;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 4px;
-            margin-left: 10px;
-        }
-
-        .footer-controls .play-button {
-            background: #1db954; /* Green background */
-            color: #000; /* Black icon color */
-        }
-
-        .options-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        .options-menu {
-            display: none;
-            position: absolute;
-            top: 40px;
-            right: 10px;
-            background: #282828;
-            border-radius: 4px;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .options-menu button {
-            background: none;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            cursor: pointer;
-            width: 100%;
-            text-align: left;
-        }
-
-        .options-menu button:hover {
-            background: #404040;
-        }
-
-        .search-bar {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .song-count {
-            margin-bottom: 20px;
-            font-size: 16px;
-            color: #b3b3b3;
-        }
-
-        .hamburger-menu {
-            background: none;
-            border: none;
-            color: #1db954; /* Green color */
-            font-size: 24px;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-
-        .play-all-button {
-            background: #1db954; /* Green background */
-            color: #000; /* Black icon color */
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            margin-bottom: 20px;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-
-        .sort-options {
-            display: none;
-            position: absolute;
-            background: #282828;
-            border-radius: 4px;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .sort-options button {
-            background: none;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            cursor: pointer;
-            width: 100%;
-            text-align: left;
-        }
-
-        .sort-options button:hover {
-            background: #404040;
-        }
-
-        .search-container {
-            position: relative;
-        }
-
-        .play-all-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-
-        .add-song-button {
-            background: #1db954; /* Green background */
-            color: #000; /* Black icon color */
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            margin: 20px auto;
-            display: block;
-        }
-    </style>
-</head>
-<body>
-    <div class="main-content">
+  <body>
+    <div id="root">
+      <!-- Header Section -->
+      <header class="header">
+        <div class="logo">
+          <h1>ZeroByte <span>Mods</span></h1>
+        </div>
+        <div class="tagline">
+          <p>🔥 The best Android Mods & Games</p>
+        </div>
         <div class="search-container">
-            <input type="text" class="search-bar" id="searchBar" placeholder="What do you want to listen to?" oninput="filterSongs()">
-            <button class="hamburger-menu" onclick="toggleSortOptions()"><i class="fas fa-bars"></i></button>
-            <button class="play-all-button" onclick="playAllSongs()"><i class="fas fa-play"></i></button>
+          <input type="text" id="search-input" placeholder="Search apps..." autocomplete="off">
+          <button id="search-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
         </div>
-        <div class="sort-options" id="sortOptions">
-            <button onclick="sortLibrary('name-asc')">Name (A to Z)</button>
-            <button onclick="sortLibrary('name-desc')">Name (Z to A)</button>
-            <button onclick="sortLibrary('date-new')">Date Added (New to Old)</button>
-            <button onclick="sortLibrary('date-old')">Date Added (Old to New)</button>
+        <div class="menu-icon" id="menu-toggle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </div>
-        <div class="song-count" id="songCount"></div>
-        <div class="library" id="library"></div>
-        <button class="add-song-button" onclick="showUploadForm()"><i class="fas fa-plus"></i></button>
-    </div>
+      </header>
 
-    <div class="player-controls">
-        <div class="controls">
-            <button onclick="togglePlay()"><i class="fas fa-play"></i></button>
-        </div>
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
-        </div>
-    </div>
-
-    <div class="footer-nav">
-        <div class="song-details" id="footerSongDetails">
-            <img src="" alt="Cover" id="footerCover">
-            <div>
-                <span id="footerSongTitle">No song selected</span>
-                <span id="footerSongArtist"></span>
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Featured Apps Carousel -->
+        <section class="carousel-section">
+          <h2>Featured Apps</h2>
+          <div class="carousel-container">
+            <div class="carousel-wrapper" id="featured-carousel">
+              <!-- Carousel items will be inserted here by JavaScript -->
             </div>
+            <div class="carousel-controls">
+              <button id="carousel-prev" class="carousel-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <button id="carousel-next" class="carousel-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Updates -->
+        <section class="recent-updates">
+          <h2>Recent Updates</h2>
+          <div class="app-grid" id="app-grid">
+            <!-- App cards will be inserted here by JavaScript -->
+          </div>
+        </section>
+
+        <!-- Telegram CTA -->
+        <section class="telegram-cta">
+          <h2>Join Our Telegram Community</h2>
+          <p>Get early access to latest mods and updates</p>
+          <a href="https://t.me/zerobyte_mods" class="telegram-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2L2.5 11L9 11.5L9.5 19L14 15L18 18.5L21.5 2Z"></path></svg>
+            Join Telegram
+          </a>
+        </section>
+      </main>
+
+      <!-- Bottom Navigation Bar -->
+      <nav class="bottom-navbar">
+        <a href="#" class="nav-item active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Home</span>
+        </a>
+        <a href="#" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 2L12 6 8 2"></path></svg>
+          <span>Games</span>
+        </a>
+        <a href="#" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+          <span>Apps</span>
+        </a>
+        <a href="#" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span>Popular</span>
+        </a>
+        <a href="https://t.me/zerobyte_mods" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2L2.5 11L9 11.5L9.5 19L14 15L18 18.5L21.5 2Z"></path></svg>
+          <span>Telegram</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Menu -->
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2>ZeroByte Mods</h2>
+          <button id="close-sidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
-        <div class="footer-controls">
-            <button onclick="prevSong()"><i class="fas fa-step-backward"></i></button>
-            <button class="play-button" onclick="togglePlay()"><i class="fas fa-play" id="footerPlayButton"></i></button>
-            <button onclick="nextSong()"><i class="fas fa-step-forward"></i></button>
+        <div class="sidebar-content">
+          <div class="sidebar-section">
+            <h3>Categories</h3>
+            <ul class="sidebar-menu">
+              <!-- Categories will be populated by JavaScript -->
+            </ul>
+          </div>
+          
+          <div class="sidebar-section">
+            <h3>Quick Links</h3>
+            <ul class="quick-links">
+              <li><a href="#trending">Trending Apps</a></li>
+              <li><a href="#new">New Releases</a></li>
+              <li><a href="#updates">Recent Updates</a></li>
+              <li><a href="#premium">Premium Apps</a></li>
+            </ul>
+          </div>
+          
+          <div class="sidebar-section">
+            <h3>Popular Apps</h3>
+            <div class="popular-apps">
+              <a href="download.html?id=1" class="popular-app">
+                <img src="https://play-lh.googleusercontent.com/cShys-AmJ93dB0SV8kE6Fl5eSaf4-qRpapEXIBrN4rgb1WoMfBr4uR4HJIZJVrOlAIQ=s180-rw" alt="Spotify">
+                <span>Spotify</span>
+              </a>
+              <a href="download.html?id=2" class="popular-app">
+                <img src="https://play-lh.googleusercontent.com/lMoItBgdPPVDJsNOVtP26EKHePkwBg-PkuY9NOrc-fumRtTFP4XhpUNk_22syN4Datc=s180-rw" alt="YouTube">
+                <span>YouTube</span>
+              </a>
+              <a href="download.html?id=6" class="popular-app">
+                <img src="https://play-lh.googleusercontent.com/MmLkAp-x9OvA46_NgaD7kzIJJ6jN_aQe2JPgx7LyrGxSCwJcy6KKj_H-eIOmGYmOQQ=w240-h480-rw" alt="Hotstar">
+                <span>Hotstar</span>
+              </a>
+              <a href="download.html?id=7" class="popular-app">
+                <img src="https://play-lh.googleusercontent.com/Z03nHT_nMuY-CE_q9veQyBZ5xO5sTw2Z0xhA2C7d85fbXzZxTvOPTiNKS2UY_uxiJYE=w240-h480-rw" alt="FanCode">
+                <span>FanCode</span>
+              </a>
+            </div>
+          </div>
+          
+          <div class="sidebar-section">
+            <h3>Connect With Us</h3>
+            <div class="social-icons">
+              <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+              </a>
+              <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+              </a>
+              <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+              </a>
+              <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+              </a>
+              <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+              </a>
+              <a href="https://t.me/zerobyte_mods" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2L2.5 11L9 11.5L9.5 19L14 15L18 18.5L21.5 2Z"></path></svg>
+              </a>
+            </div>
+          </div>
+          
+          <div class="sidebar-section">
+            <a href="#request" class="request-mod-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Request a Mod
+            </a>
+          </div>
         </div>
+      </div>
+
+      <!-- Mod Features Modal -->
+      <div class="modal" id="mod-features-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 id="modal-title">App Name</h2>
+            <button id="close-modal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="app-info" id="modal-app-info">
+              <!-- App info will be inserted here by JavaScript -->
+            </div>
+            <div class="mod-features">
+              <h3>Mod Features</h3>
+              <ul id="mod-features-list">
+                <!-- Mod features will be inserted here by JavaScript -->
+              </ul>
+            </div>
+            <a href="#" class="download-btn" id="modal-download-btn">Download Now</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlay -->
+      <div class="overlay" id="overlay"></div>
+      
+      <!-- Share button -->
+      <button class="share-button" id="share-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+      </button>
     </div>
 
-    <div class="upload-form" id="uploadForm">
-        <img src="path/to/logo.png" alt="Logo" style="width: 100px; margin-bottom: 20px;">
-        <input type="text" id="songTitle" placeholder="Song Title">
-        <input type="text" id="songArtist" placeholder="Song Artist">
-        <input type="file" id="songFile" accept=".mp3,.m4a">
-        <input type="file" id="coverImage" accept=".jpg,.jpeg">
-        <button onclick="uploadSong()">Upload</button>
-        <button onclick="hideUploadForm()">Cancel</button>
-    </div>
+    <style>
+      /* Enhanced Sidebar Styles */
+      .quick-links {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0;
+      }
+      
+      .quick-links li {
+        margin-bottom: 8px;
+      }
+      
+      .quick-links a {
+        display: block;
+        padding: 8px 12px;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      
+      .quick-links a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+      }
+      
+      .popular-apps {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 12px;
+      }
+      
+      .popular-app {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: white;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 12px;
+        transition: all 0.3s ease;
+      }
+      
+      .popular-app:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-3px);
+      }
+      
+      .popular-app img {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+      }
+      
+      .request-mod-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: var(--neon-green);
+        color: black;
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-top: 16px;
+        transition: all 0.3s ease;
+      }
+      
+      .request-mod-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
+      }
+      
+      /* App info styles for download page */
+      .app-info-content {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
 
-    <audio id="audioPlayer"></audio>
+      .app-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        margin-right: 16px;
+      }
 
-    <script>
-        let currentAudio = document.getElementById('audioPlayer');
-        let isPlaying = false;
-        let currentSongIndex = 0;
+      .app-details h2 {
+        margin: 0 0 4px 0;
+        font-size: 1.25rem;
+      }
 
-        // Load library on startup
-        document.addEventListener('DOMContentLoaded', () => {
-            loadLibrary();
-        });
+      .app-details p {
+        margin: 0;
+        opacity: 0.7;
+        font-size: 0.9rem;
+      }
+      
+      /* Search highlights */
+      #search-input {
+        position: relative;
+      }
+      
+      #search-input.active {
+        border-color: var(--neon-green);
+      }
+      
+      .search-container button:active {
+        transform: scale(0.95);
+      }
+    </style>
 
-        function showUploadForm() {
-            document.getElementById('uploadForm').style.display = 'block';
-        }
-
-        function hideUploadForm() {
-            document.getElementById('uploadForm').style.display = 'none';
-        }
-
-        function showLibrary() {
-            // Implement library display logic
-        }
-
-        function uploadSong() {
-            const songTitle = document.getElementById('songTitle').value;
-            const songArtist = document.getElementById('songArtist').value;
-            const songFile = document.getElementById('songFile').files[0];
-            const coverImage = document.getElementById('coverImage').files[0];
-
-            if (songTitle && songArtist && songFile && coverImage) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const song = {
-                        id: Date.now(),
-                        title: songTitle,
-                        artist: songArtist,
-                        audioUrl: URL.createObjectURL(songFile),
-                        coverUrl: URL.createObjectURL(coverImage)
-                    };
-
-                    let library = JSON.parse(localStorage.getItem('library') || '[]');
-                    library.push(song);
-                    localStorage.setItem('library', JSON.stringify(library));
-
-                    hideUploadForm();
-                    loadLibrary();
-                };
-                reader.readAsDataURL(coverImage);
-            }
-        }
-
-        function loadLibrary() {
-            const library = JSON.parse(localStorage.getItem('library') || '[]');
-            const libraryDiv = document.getElementById('library');
-            const songCountDiv = document.getElementById('songCount');
-            libraryDiv.innerHTML = '';
-            songCountDiv.textContent = `${library.length} songs`;
-
-            library.forEach((song, index) => {
-                const songCard = document.createElement('div');
-                songCard.className = 'song-card';
-                songCard.dataset.title = song.title.toLowerCase();
-                songCard.dataset.artist = song.artist.toLowerCase();
-                songCard.innerHTML = `
-                    <img src="${song.coverUrl}" alt="${song.title}">
-                    <h4>${song.title}</h4>
-                    <p>${song.artist}</p>
-                    <button class="play-button" onclick="playSong(${index})"><i class="fas fa-play"></i></button>
-                    <button class="options-button" onclick="toggleOptionsMenu(${index})"><i class="fas fa-ellipsis-h"></i></button>
-                    <div class="options-menu" id="optionsMenu${index}">
-                        <button onclick="deleteSong(${index})">Delete</button>
-                    </div>
-                `;
-                songCard.addEventListener('click', () => playSong(index));
-                libraryDiv.appendChild(songCard);
-            });
-        }
-
-        function filterSongs() {
-            const searchTerm = document.getElementById('searchBar').value.toLowerCase();
-            const songCards = document.querySelectorAll('.song-card');
-
-            songCards.forEach(card => {
-                const title = card.dataset.title;
-                const artist = card.dataset.artist;
-                if (title.includes(searchTerm) || artist.includes(searchTerm)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        function toggleOptionsMenu(index) {
-            const menu = document.getElementById(`optionsMenu${index}`);
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function deleteSong(index) {
-            let library = JSON.parse(localStorage.getItem('library') || '[]');
-            library.splice(index, 1);
-            localStorage.setItem('library', JSON.stringify(library));
-            loadLibrary();
-        }
-
-        function playSong(index) {
-            const library = JSON.parse(localStorage.getItem('library') || '[]');
-            const song = library[index];
-            if (song) {
-                currentSongIndex = index;
-                document.getElementById('footerSongTitle').textContent = song.title;
-                document.getElementById('footerSongArtist').textContent = song.artist;
-                document.getElementById('footerCover').src = song.coverUrl;
-                currentAudio.src = song.audioUrl;
-                currentAudio.play().then(() => {
-                    document.getElementById('footerPlayButton').classList.replace('fa-play', 'fa-pause');
-                    isPlaying = true;
-                }).catch(error => {
-                    console.error('Error playing audio:', error);
-                });
-            } else {
-                console.error('Song not found in library');
-            }
-        }
-
-        function togglePlay() {
-            if (isPlaying) {
-                currentAudio.pause();
-                document.getElementById('footerPlayButton').classList.replace('fa-pause', 'fa-play');
-            } else {
-                currentAudio.play();
-                document.getElementById('footerPlayButton').classList.replace('fa-play', 'fa-pause');
-            }
-            isPlaying = !isPlaying;
-        }
-
-        function prevSong() {
-            const library = JSON.parse(localStorage.getItem('library') || '[]');
-            if (currentSongIndex > 0) {
-                playSong(currentSongIndex - 1);
-            }
-        }
-
-        function nextSong() {
-            const library = JSON.parse(localStorage.getItem('library') || '[]');
-            if (currentSongIndex < library.length - 1) {
-                playSong(currentSongIndex + 1);
-            }
-        }
-
-        // Update progress bar
-        currentAudio.addEventListener('timeupdate', () => {
-            const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
-            document.getElementById('progress').style.width = `${progress}%`;
-        });
-
-        function toggleSortOptions() {
-            const sortOptions = document.getElementById('sortOptions');
-            sortOptions.style.display = sortOptions.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function sortLibrary(criteria) {
-            const library = JSON.parse(localStorage.getItem('library') || '[]');
-
-            switch (criteria) {
-                case 'name-asc':
-                    library.sort((a, b) => a.title.localeCompare(b.title));
-                    break;
-                case 'name-desc':
-                    library.sort((a, b) => b.title.localeCompare(a.title));
-                    break;
-                case 'date-new':
-                    library.sort((a, b) => b.id - a.id);
-                    break;
-                case 'date-old':
-                    library.sort((a, b) => a.id - b.id);
-                    break;
-            }
-
-            localStorage.setItem('library', JSON.stringify(library));
-            loadLibrary();
-            toggleSortOptions();
-        }
-
-        function playAllSongs() {
-            const library = JSON.parse(localStorage.getItem('library') || '[]');
-            if (library.length > 0) {
-                playSong(0);
-            }
-        }
-    </script>
-</body>
-</html>
+    <script src="/src/main.js"></script>
+  </body>
+    </html>
